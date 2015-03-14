@@ -186,7 +186,10 @@ public class BoxFactory
             {
                 //add previously created boxes (the rest from the last twin)
                 if (stat.parent.preadd != null)
+                {
                     addToTree(stat.parent.preadd, stat);
+                    stat.parent.preadd = null; //don't need to keep this anymore
+                }
                 
                 //create :before elements
                 if (stat.parent.previousTwin == null)
@@ -359,6 +362,7 @@ public class BoxFactory
                         iparent.postadd.add(newbox);
                         if (iparent.nextTwin != null)
                             iparent.postadd.add(iparent.nextTwin);
+                        stat.lastinflow = null; //we have started a new block box
                     }
                     else
                         log.error("(internal error) grandpa is missing for %s", newbox);
@@ -391,6 +395,7 @@ public class BoxFactory
         {
             for (Box box : ((ElementBox) newbox).postadd)
                 addToTree(box, stat);
+            ((ElementBox) newbox).postadd = null; //don't need to keep this anymore
         }
         
     }
@@ -439,7 +444,7 @@ public class BoxFactory
      */
     public ElementBox createElementBox(Element n, BoxTreeCreationStatus stat)
     {
-        ElementBox ret = createBox(stat.parent, (Element) n, null);
+        ElementBox ret = createBox(stat.parent, n, null);
         ret.setClipBlock(stat.clipbox);
         if (ret.isBlock())
         {
@@ -810,7 +815,7 @@ public class BoxFactory
      */
     public ElementBox createElementInstance(ElementBox parent, Element n, NodeData style)
     {
-        ElementBox root = new InlineBox((Element) n, (Graphics2D) parent.getGraphics().create(), parent.getVisualContext().create());
+        ElementBox root = new InlineBox(n, (Graphics2D) parent.getGraphics().create(), parent.getVisualContext().create());
         root.setViewport(viewport);
         root.setStyle(style);
         if (root.getDisplay() == ElementBox.DISPLAY_LIST_ITEM)
